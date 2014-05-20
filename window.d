@@ -77,7 +77,6 @@ version(Windows)
 
 		private LRESULT internalWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) nothrow
 		{
-			//MessageBoxA(null, "Run 2", "Error", MB_OK | MB_ICONEXCLAMATION);
 			switch (message)
 			{
 				case WM_CREATE:
