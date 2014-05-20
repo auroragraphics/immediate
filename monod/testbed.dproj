@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{21E8180B-F4BD-4519-87AB-2D122F6B2D39}</ProjectGuid>
+    <UseDefaultCompiler>true</UseDefaultCompiler>
+    <IncrementalLinking>true</IncrementalLinking>
+    <PreferOneStepBuild>true</PreferOneStepBuild>
+    <BaseDirectory>..\testbed</BaseDirectory>
+    <Compiler>DMD2</Compiler>
+    <Includes>
+      <Includes>
+        <Path>..\..\..</Path>
+        <Path>C:\Program Files (x86)\Windows Kits\8.1\Lib\winv6.3\um\x64</Path>
+      </Includes>
+    </Includes>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\Build\</OutputPath>
+    <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
+    <Libs>
+      <Libs>
+        <Lib>..\..\lib\libaurorai64d.lib</Lib>
+        <Lib>..\..\lib\libadx1164d.lib</Lib>
+        <Lib>kernel32.lib</Lib>
+        <Lib>gdi32.lib</Lib>
+        <Lib>user32.lib</Lib>
+        <Lib>advapi32.lib</Lib>
+        <Lib>MSVCPRTD.LIB</Lib>
+        <Lib>MSVCRTD.lib</Lib>
+        <Lib>DXGI.lib</Lib>
+      </Libs>
+    </Libs>
+    <DebugLevel>0</DebugLevel>
+    <ObjectsDirectory>obj\Debug</ObjectsDirectory>
+    <ExtraLinkerArguments>/NODEFAULTLIB:LIBCMT.lib /SUBSYSTEM:WINDOWS</ExtraLinkerArguments>
+    <Target>Executable</Target>
+    <Externalconsole>true</Externalconsole>
+    <UnittestMode>false</UnittestMode>
+    <OutputName>testbed</OutputName>
+    <ExtraCompilerArguments>-m64</ExtraCompilerArguments>
+    <VersionIds>
+      <VersionIds>
+        <String>DX11_1</String>
+      </VersionIds>
+    </VersionIds>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release</OutputPath>
+    <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
+    <Libs>
+      <Libs>
+        <Lib>..\..\lib\libaurorai64.lib</Lib>
+        <Lib>kernel32.lib</Lib>
+        <Lib>gdi32.lib</Lib>
+        <Lib>user32.lib</Lib>
+        <Lib>advapi32.lib</Lib>
+        <Lib>MSVCPRT.LIB</Lib>
+        <Lib>MSVCRT.lib</Lib>
+        <Lib>DXGI.lib</Lib>
+      </Libs>
+    </Libs>
+    <DebugLevel>0</DebugLevel>
+    <ObjectsDirectory>obj\Release</ObjectsDirectory>
+    <ExtraLinkerArguments>/NODEFAULTLIB:LIBCMT.lib
+/SUBSYSTEM:WINDOWS</ExtraLinkerArguments>
+    <Target>Executable</Target>
+    <Externalconsole>true</Externalconsole>
+    <UnittestMode>false</UnittestMode>
+    <OutputName>testbed</OutputName>
+    <ExtraCompilerArguments>-m64</ExtraCompilerArguments>
+    <VersionIds>
+      <VersionIds>
+        <String>DX11_1</String>
+      </VersionIds>
+    </VersionIds>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Unittest|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Unittest</OutputPath>
+    <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
+    <Libs>
+      <Libs>
+        <Lib>kernel32.lib</Lib>
+        <Lib>gdi32.lib</Lib>
+      </Libs>
+    </Libs>
+    <DebugLevel>0</DebugLevel>
+    <ObjectsDirectory>obj\Unittest</ObjectsDirectory>
+    <ExtraLinkerArguments>-L/su:windows -L/exet:nt</ExtraLinkerArguments>
+    <Target>Executable</Target>
+    <Externalconsole>true</Externalconsole>
+    <UnittestMode>true</UnittestMode>
+    <OutputName>testbed</OutputName>
+    <ExtraCompilerArguments>-m64</ExtraCompilerArguments>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\testbed\main.d" />
+  </ItemGroup>
+</Project>
