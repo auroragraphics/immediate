@@ -22,8 +22,8 @@
     <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
     <Libs>
       <Libs>
-        <Lib>..\..\lib\libaurorai64d.lib</Lib>
-        <Lib>..\..\lib\libadx1164d.lib</Lib>
+        <Lib>..\..\lib\libaurora_immediate64d.lib</Lib>
+        <Lib>..\..\lib\libaurora_dx1164d.lib</Lib>
         <Lib>kernel32.lib</Lib>
         <Lib>gdi32.lib</Lib>
         <Lib>user32.lib</Lib>

@@ -13,13 +13,9 @@ version(Windows)
 	{
 		int result;
 		
-		void exceptionHandler(Throwable e) {
-			Application.current.ApplicationUnhandledException(e);
-		}
-		
 		try
 		{
-			Runtime.initialize(&exceptionHandler);
+			Runtime.initialize();
 			Application.current.commandLine = to!string(lpCmdLine);
 			Application.current.appHandle = hInstance;
 			Application.current.Startup();
@@ -32,16 +28,17 @@ version(Windows)
 			}
 
 			Application.current.Shutdown();
-			Runtime.terminate(&exceptionHandler);
+			Runtime.terminate();
 		}
 		catch (Throwable e) // catch any uncaught exceptions
 		{
+			Application.current.ApplicationUnhandledException(e);
 			MessageBoxA(null, e.toString().toStringz(), "Error", MB_OK | MB_ICONEXCLAMATION);
 			result = 0;     // failed
 		}
 		finally
 		{
-			Runtime.terminate(&exceptionHandler);
+			Runtime.terminate();
 		}
 		
 		return result;

@@ -1,9 +1,7 @@
 ﻿module aurora.immediate.application;
 
 import aurora.immediate.window;
-import aurora.directx.com;
-import aurora.directx.config;
-import aurora.directx.dxgi;
+import aurora.directx;
 
 export enum ShutdownMode
 {
@@ -27,10 +25,11 @@ private:
 		if(CreateDXGIFactory1(&IID_IDXGIFactory2, cast(void**)&_factory) != S_OK)
 			MessageBoxA(null, "Error acquiring a DXGIFactory", "Error", MB_OK | MB_ICONEXCLAMATION);
 					
-//		uint eac = 0;
-//		IDXGIAdapter1 t;
-//		while(_factory.EnumAdapters1(eac++, &t) != DXGI_ERROR_NOT_FOUND)
-//			_adapters ~= t;
+		uint eac = 0;
+		IDXGIAdapter1 t;
+		while(_factory.EnumAdapters1(eac++, &t) != DXGI_ERROR_NOT_FOUND)
+			_adapters ~= t;
+
 	}
 
 public:
@@ -78,20 +77,22 @@ public:
 
 	private Window[] _openWindows;
 
-	protected void addWindow(Window window) {
+	public void addWindow(Window window) {
 		//If there is a free slot in the previously allocated space, use that instead.
 		synchronized(this) {
+			bool slotfound = false;
 			for(int i=0;i<_openWindows.length;i++) {
 				if(_openWindows[i] is null) {
 					_openWindows[i] = window;
-					return;
+					slotfound = true;
 				}
-			}		
-			_openWindows ~= window;
+			}	
+			if(!slotfound)
+				_openWindows ~= window;
 		}
 	}
 
-	protected void releaseWindow(Window window) {
+	public void releaseWindow(Window window) {
 		synchronized(this) {
 			for(int i=0;i<_openWindows.length;i++)
 				if(_openWindows[i] == window)

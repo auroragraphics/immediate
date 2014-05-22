@@ -3,6 +3,7 @@
 import aurora.immediate.application;
 import std.utf;
 import std.conv;
+import std.string;
 
 version(Windows)
 {
@@ -15,10 +16,10 @@ version(Windows)
 		private static Window[HWND] _windows;
 
 		private void* _handle;
-		@property private void* handle() { return _handle; }
+		@property public void* handle() { return _handle; }
 
 		this(string Title) {
-			WNDCLASS wndclass;
+			WNDCLASSW wndclass;
 			wndclass.style         = CS_HREDRAW | CS_VREDRAW;
 			wndclass.lpfnWndProc   = &WndProc;
 			wndclass.cbClsExtra    = 0;
@@ -28,23 +29,25 @@ version(Windows)
 			wndclass.hCursor       = LoadCursorA(null, IDC_ARROW);
 			wndclass.hbrBackground = cast(HBRUSH)GetStockObject(WHITE_BRUSH);
 			wndclass.lpszMenuName  = null;
-			wndclass.lpszClassName = Application.current.applicationName.ptr;
-			MessageBoxA(null, wndclass.lpszClassName, "Error", MB_OK);
+			wndclass.lpszClassName = toUTF16z(Application.current.applicationName);
 
-			if(!RegisterClassA(&wndclass))
-				MessageBoxW(null, toUTFz!(const(wchar)*)("This program requires Windows NT!"), toUTFz!(const(wchar)*)(Application.current.applicationName), MB_ICONERROR);
+			if(!RegisterClassW(&wndclass))
+				MessageBoxW(null, toUTF16z("This program requires Windows NT!"), toUTF16z(Application.current.applicationName), MB_ICONERROR);
 
-			_handle = CreateWindowA(Application.current.applicationName.ptr, Title.ptr, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, null, null, Application.current.appHandle, null);
+			_handle = CreateWindowW(toUTF16z(Application.current.applicationName), toUTF16z(Title), WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 500, 400, HWND_DESKTOP, null, Application.current.appHandle, null);
 			if(_handle is null)
-				MessageBoxA(null, "Unable to Create Window", "Error", MB_OK | MB_ICONEXCLAMATION);
+				MessageBoxW(null, toUTF16z("Unable to Create Window"), "Error", MB_OK | MB_ICONEXCLAMATION);
 
 			synchronized(windowlock) {
 				_windows[_handle] = this;
 			}
 
+			Application.current.addWindow(this);
 		}
 
 		~this() {
+			Application.current.releaseWindow(this);
+
 			synchronized(windowlock) {
 				_windows.remove(_handle);
 			}
