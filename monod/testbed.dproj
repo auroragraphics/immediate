@@ -23,7 +23,7 @@
     <Libs>
       <Libs>
         <Lib>..\..\lib\libaurora_immediate64d.lib</Lib>
-        <Lib>..\..\lib\libaurora_dx1164d.lib</Lib>
+        <Lib>..\..\lib\libaurora_directx64d.lib</Lib>
         <Lib>kernel32.lib</Lib>
         <Lib>gdi32.lib</Lib>
         <Lib>user32.lib</Lib>
@@ -52,7 +52,8 @@
     <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
     <Libs>
       <Libs>
-        <Lib>..\..\lib\libaurorai64.lib</Lib>
+        <Lib>..\..\lib\libaurora_immediate64d.lib</Lib>
+        <Lib>..\..\lib\libaurora_directx64d.lib</Lib>
         <Lib>kernel32.lib</Lib>
         <Lib>gdi32.lib</Lib>
         <Lib>user32.lib</Lib>
@@ -64,8 +65,7 @@
     </Libs>
     <DebugLevel>0</DebugLevel>
     <ObjectsDirectory>obj\Release</ObjectsDirectory>
-    <ExtraLinkerArguments>/NODEFAULTLIB:LIBCMT.lib
-/SUBSYSTEM:WINDOWS</ExtraLinkerArguments>
+    <ExtraLinkerArguments>/NODEFAULTLIB:LIBCMT.lib /SUBSYSTEM:WINDOWS</ExtraLinkerArguments>
     <Target>Executable</Target>
     <Externalconsole>true</Externalconsole>
     <UnittestMode>false</UnittestMode>

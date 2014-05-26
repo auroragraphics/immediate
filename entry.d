@@ -1,8 +1,10 @@
 ﻿module aurora.immediate.entry;
 
 import core.runtime;
-import std.string;
+import std.utf;
 import std.conv;
+import std.string;
+
 import aurora.immediate.application;
 
 version(Windows)
@@ -20,11 +22,14 @@ version(Windows)
 			Application.current.appHandle = hInstance;
 			Application.current.Startup();
 
-			MSG msg = { };
-			while (GetMessageA(&msg, null, 0, 0))
+			while (!Application.current.shutdownRequested)
 			{
-				TranslateMessage(&msg);
-				DispatchMessageA(&msg);
+				//Use PeekMessage so we don't stall while waiting for a message
+				MSG msg = { };
+				if(PeekMessageW(&msg, null, 0, 0, PM_REMOVE)) {
+					TranslateMessage(&msg);
+					DispatchMessageW(&msg);
+				}
 			}
 
 			Application.current.Shutdown();
@@ -33,7 +38,7 @@ version(Windows)
 		catch (Throwable e) // catch any uncaught exceptions
 		{
 			Application.current.ApplicationUnhandledException(e);
-			MessageBoxA(null, e.toString().toStringz(), "Error", MB_OK | MB_ICONEXCLAMATION);
+			MessageBoxW(null, toUTF16z(e.toString()), toUTF16z("Error"), MB_OK | MB_ICONEXCLAMATION);
 			result = 0;     // failed
 		}
 		finally

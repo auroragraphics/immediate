@@ -8,12 +8,34 @@ import std.string;
 version(Windows)
 {
 	import core.sys.windows.windows;
+	extern(Windows) bool DestroyWindow(HWND hWnd) nothrow;
 
 	private __gshared Object windowlock = new Object();
 
 	public class Window
 	{
 		private static Window[HWND] _windows;
+
+		private static void addwindow(Window value) nothrow {
+			try { 
+				synchronized(windowlock) {
+					_windows[value._handle] = value;
+				}
+			} catch { }
+		}
+
+		private static void removewindow(Window value) nothrow {
+			try { 
+				bool nowindows = false;
+				synchronized(windowlock) {
+					_windows.remove(value._handle);
+					if(_windows.length == 0) nowindows = true;
+				}
+				if(nowindows && Application.current.shutdownMode == ShutdownMode.OnLastWindowClose) {
+					Application.current.Shutdown(0);
+				}
+			} catch { }
+		}
 
 		private void* _handle;
 		@property public void* handle() { return _handle; }
@@ -36,21 +58,12 @@ version(Windows)
 
 			_handle = CreateWindowW(toUTF16z(Application.current.applicationName), toUTF16z(Title), WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 500, 400, HWND_DESKTOP, null, Application.current.appHandle, null);
 			if(_handle is null)
-				MessageBoxW(null, toUTF16z("Unable to Create Window"), "Error", MB_OK | MB_ICONEXCLAMATION);
+				MessageBoxW(null, toUTF16z("Unable to Create Window"), toUTF16z("Error"), MB_OK | MB_ICONEXCLAMATION);
 
-			synchronized(windowlock) {
-				_windows[_handle] = this;
-			}
-
-			Application.current.addWindow(this);
+			addwindow(this);
 		}
 
 		~this() {
-			Application.current.releaseWindow(this);
-
-			synchronized(windowlock) {
-				_windows.remove(_handle);
-			}
 		}
 
 		public void Hide() {
@@ -85,10 +98,14 @@ version(Windows)
 				case WM_CREATE:
 					return 0;
 
-				case WM_DESTROY:
-					PostQuitMessage(0);
+				case WM_CLOSE:
+					DestroyWindow(hwnd);
 					return 0;
-					
+
+				case WM_DESTROY:
+					removewindow(this);
+					return 0;
+
 				default:
 			}
 
@@ -97,10 +114,10 @@ version(Windows)
 	}
 
 	extern(Windows) LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) nothrow {
+		if(message == WM_CREATE) return 0;
+		if(message == WM_GETMINMAXINFO) return 0;
+		if(message == WM_NCCREATE) return TRUE;
 		try {
-			if(message == WM_CREATE) return 0;
-			if(message == WM_GETMINMAXINFO) return 0;
-			if(message == WM_NCCREATE) return TRUE;
 			synchronized(windowlock) {
 				return Window._windows[hwnd].internalWndProc(hwnd, message, wParam, lParam);
 			}
