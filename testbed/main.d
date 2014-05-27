@@ -16,6 +16,10 @@ class App : Application
 	public override void Startup()
 	{
 		test = new Window("Welcome to DConf 2014!");
+		test.x = 100;
+		test.y = 100;
+		test.height = 1000;
+		test.width = 1000;
 		test.Show();
 	}
 }

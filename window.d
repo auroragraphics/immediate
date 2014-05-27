@@ -8,7 +8,29 @@ import std.string;
 version(Windows)
 {
 	import core.sys.windows.windows;
-	extern(Windows) bool DestroyWindow(HWND hWnd) nothrow;
+
+	//DRuntime missing exported functions
+	extern(Windows) export bool DestroyWindow(HWND hWnd) nothrow;
+	extern(Windows) export bool SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags) nothrow;
+
+	enum : uint
+	{
+		SWP_ASYNCWINDOWPOS = 0x4000,
+		SWP_DEFERERASE = 0x2000,
+		SWP_DRAWFRAME = 0x0020,
+		SWP_FRAMECHANGED = 0x0020,
+		SWP_HIDEWINDOW = 0x0080,
+		SWP_NOACTIVATE = 0x0010,
+		SWP_NOCOPYBITS = 0x0100,
+		SWP_NOMOVE = 0x0002,
+		SWP_NOOWNERZORDER = 0x0200,
+		SWP_NOREDRAW = 0x0008,
+		SWP_NOREPOSITION = 0x0200,
+		SWP_NOSENDCHANGING = 0x0400,
+		SWP_NOSIZE = 0x0001,
+		SWP_NOZORDER = 0x0004,
+		SWP_SHOWWINDOW = 0x0040,
+	}
 
 	private __gshared Object windowlock = new Object();
 
@@ -56,7 +78,7 @@ version(Windows)
 			if(!RegisterClassW(&wndclass))
 				MessageBoxW(null, toUTF16z("This program requires Windows NT!"), toUTF16z(Application.current.applicationName), MB_ICONERROR);
 
-			_handle = CreateWindowW(toUTF16z(Application.current.applicationName), toUTF16z(Title), WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 500, 400, HWND_DESKTOP, null, Application.current.appHandle, null);
+			_handle = CreateWindowW(toUTF16z(Application.current.applicationName), toUTF16z(Title), WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE, _x, _y, _width, _height, HWND_DESKTOP, null, Application.current.appHandle, null);
 			if(_handle is null)
 				MessageBoxW(null, toUTF16z("Unable to Create Window"), toUTF16z("Error"), MB_OK | MB_ICONEXCLAMATION);
 
@@ -89,6 +111,34 @@ version(Windows)
 
 		public void Close() {
 			SendMessageA(_handle, WM_CLOSE, 0, 0);
+		}
+
+		private int _height = 400;
+		@property public int height() { return _height; }
+		@property public int height(int value) { 
+			SetWindowPos(_handle, null, _x, _y, _width, value, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+			return _height = value; 
+		}
+		
+		private int _width = 500;
+		@property public int width() { return _width; }
+		@property public int width(int value) { 
+			SetWindowPos(_handle, null, _x, _y, value, _height, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+			return _width = value; 
+		}
+
+		private int _x = CW_USEDEFAULT;
+		@property public int x() { return _x; }
+		@property public int x(int value) { 
+			SetWindowPos(_handle, null, value, _y, _width, _height, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+			return _x = value; 
+		}
+		
+		private int _y = CW_USEDEFAULT;
+		@property public int y() { return _y; }
+		@property public int y(int value) { 
+			SetWindowPos(_handle, null, _x, value, _width, _height, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+			return _y = value; 
 		}
 
 		private LRESULT internalWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) nothrow
