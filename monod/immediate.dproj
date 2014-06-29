@@ -68,5 +68,6 @@
     <Compile Include="..\application.d" />
     <Compile Include="..\window.d" />
     <Compile Include="..\package.d" />
+    <Compile Include="..\input.d" />
   </ItemGroup>
 </Project>

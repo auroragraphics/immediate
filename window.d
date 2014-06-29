@@ -1,6 +1,7 @@
 ﻿module aurora.immediate.window;
 
 import aurora.immediate.application;
+import aurora.immediate.input;
 import std.utf;
 import std.conv;
 import std.string;
@@ -60,7 +61,7 @@ version(Windows)
 		}
 
 		private void* _handle;
-		@property public void* handle() { return _handle; }
+		@property public void* handle() nothrow { return _handle; }
 
 		this(string Title) {
 			WNDCLASSW wndclass;
@@ -88,19 +89,19 @@ version(Windows)
 		~this() {
 		}
 
-		public void Hide() {
+		public void Hide() nothrow {
 			ShowWindow(_handle, SW_HIDE);
 		}
 
-		public void Minimize() {
+		public void Minimize() nothrow {
 			ShowWindow(_handle, SW_MINIMIZE);
 		}
 
-		public void Maximize() {
+		public void Maximize() nothrow {
 			ShowWindow(_handle, SW_MAXIMIZE);
 		}
 
-		public void Restore() {
+		public void Restore() nothrow {
 			ShowWindow(_handle, SW_RESTORE);
 		}
 
@@ -109,37 +110,40 @@ version(Windows)
 			UpdateWindow(_handle);
 		}
 
-		public void Close() {
+		public void Close() nothrow {
 			SendMessageA(_handle, WM_CLOSE, 0, 0);
 		}
 
 		private int _height = 400;
-		@property public int height() { return _height; }
-		@property public int height(int value) { 
+		@property public int height() nothrow { return _height; }
+		@property public int height(int value) nothrow { 
 			SetWindowPos(_handle, null, _x, _y, _width, value, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
 			return _height = value; 
 		}
 		
 		private int _width = 500;
-		@property public int width() { return _width; }
-		@property public int width(int value) { 
+		@property public int width() nothrow { return _width; }
+		@property public int width(int value) nothrow { 
 			SetWindowPos(_handle, null, _x, _y, value, _height, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
 			return _width = value; 
 		}
 
 		private int _x = CW_USEDEFAULT;
-		@property public int x() { return _x; }
-		@property public int x(int value) { 
+		@property public int x() nothrow { return _x; }
+		@property public int x(int value) nothrow { 
 			SetWindowPos(_handle, null, value, _y, _width, _height, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 			return _x = value; 
 		}
 		
 		private int _y = CW_USEDEFAULT;
-		@property public int y() { return _y; }
-		@property public int y(int value) { 
+		@property public int y() nothrow { return _y; }
+		@property public int y(int value) nothrow { 
 			SetWindowPos(_handle, null, _x, value, _width, _height, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 			return _y = value; 
 		}
+
+		protected void delegate(immutable(KeyData) args) nothrow onKeyDown;
+		protected void delegate(immutable(KeyData) args) nothrow onKeyUp;
 
 		private LRESULT internalWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) nothrow
 		{
@@ -150,6 +154,14 @@ version(Windows)
 
 				case WM_CLOSE:
 					DestroyWindow(hwnd);
+					return 0;
+
+				case WM_KEYDOWN:
+					if (onKeyDown !is null) onKeyDown(immutable KeyData(cast(Key)wParam, true, false, false));
+					return 0;
+
+				case WM_KEYUP:
+					if (onKeyUp !is null) onKeyUp(immutable KeyData(cast(Key)wParam, false, true, false));
 					return 0;
 
 				case WM_DESTROY:
