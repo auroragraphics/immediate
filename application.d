@@ -18,20 +18,28 @@ export enum ShutdownMode
 export class Application {
 private:
 	static Application _instance = null;
+	static Window _openWindows[];
 
-	IDXGIFactory2 _factory;
-	IDXGIAdapter1[] _adapters;
+	DXPtr!IDXGIFactory2 _factory;
+	DXPtr!IDXGIAdapter1[] _adapters;
 
+	static this() {
+		_openWindows = new Window[256]; 	//Give the array some high initial value to prevent multiple reallocations.
+	}
+	
 	protected this() {
 		//Initialize DirectX
-		if(CreateDXGIFactory1(&IID_IDXGIFactory2, cast(void**)&_factory) != S_OK)
-			MessageBoxW(null, toUTF16z("Error acquiring a DXGIFactory"), toUTF16z("Error"), MB_OK | MB_ICONEXCLAMATION);
-					
+		IDXGIFactory2 tf = null;
+		if(CreateDXGIFactory1(&IID_IDXGIFactory2, cast(void**)&tf) != S_OK)
+			MessageBoxA(null, "Error acquiring a DXGIFactory", "Error", MB_OK | MB_ICONEXCLAMATION);
+		
+		_factory = DXPtr!IDXGIFactory2(tf);
+		
 		uint eac = 0;
+		_adapters = new DXPtr!IDXGIAdapter1[256];
 		IDXGIAdapter1 t;
 		while(_factory.EnumAdapters1(eac++, &t) != DXGI_ERROR_NOT_FOUND)
-			_adapters ~= t;
-
+			_adapters[eac] = DXPtr!IDXGIAdapter1(t);
 	}
 
 public:
