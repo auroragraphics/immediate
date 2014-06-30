@@ -65,11 +65,6 @@ version(Windows)
 		@property public void* handle() nothrow { return _handle; }
 
 		protected this(string Title) {
-			_height = 400;
-			_width = 500;
-			_x = CW_USEDEFAULT;
-			_y = CW_USEDEFAULT;
-
 			WNDCLASSW wndclass;
 			wndclass.style         = CS_HREDRAW | CS_VREDRAW;
 			wndclass.lpfnWndProc   = &WndProc;
@@ -184,10 +179,8 @@ version(Windows)
 
 	extern(Windows) LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) nothrow {
 		try {
-			if((SystemWindow(hwnd) in Window._windows) is null) {
-				return DefWindowProcW(hwnd, message, wParam, lParam);
-			}
 			synchronized(windowlock) {
+				if((SystemWindow(hwnd) in Window._windows) is null) return DefWindowProcW(hwnd, message, wParam, lParam);
 				return Window._windows[SystemWindow(hwnd)].internalWndProc(hwnd, message, wParam, lParam);
 			}
 		}
