@@ -2,7 +2,7 @@
 
 import std.bitmanip;
 
-public enum Key : int {
+public enum Key {
 	LeftButton =    0x01,
 	RightButton =   0x02,
 	Cancel =        0x03,
@@ -155,8 +155,8 @@ extern(Windows) export bool GetKeyboardState(ubyte* lpKeyState) nothrow;
 extern(Windows) export bool SetKeyboardState(ubyte* lpKeyState) nothrow;
 extern(Windows) export uint MapVirtualKey(uint uCode, uint uMapType) nothrow;
 
-private bool keydown(int keyCode) { return (GetAsyncKeyState(keyCode) & 0x8000) ? true : false; } 
-private bool keyup(int keyCode) { return (GetAsyncKeyState(keyCode) & 0x8000) ? false : true; } 
+private bool keydown(int keyCode) nothrow { return (GetAsyncKeyState(keyCode) & 0x8000) ? true : false; } 
+private bool keyup(int keyCode) nothrow { return (GetAsyncKeyState(keyCode) & 0x8000) ? false : true; } 
 
 public immutable struct KeyData
 {
@@ -193,11 +193,7 @@ public immutable struct KeyData
 	private bool _isCapsLockToggled;
 	@property public bool IsCapsLockToggled() { return _isCapsLockToggled; }
 
-	@disable this();
-
-	public void init() { }
-
-	public immutable this(Key key, bool isDown, bool isUp, bool isRepeating) nothrow
+	public this(Key key, bool isDown, bool isUp, bool isRepeating = false) nothrow
 	{
 		_key = key;
 		_isDown = isDown;

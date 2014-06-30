@@ -17,7 +17,6 @@ class App : Application
 	public override void Startup()
 	{
 		test = new TestWindow();
-		test.Show();
 	}
 }
 
@@ -36,7 +35,7 @@ class TestWindow : Window
 	private void ProcessOnKeyDown(immutable(KeyData) args) nothrow
 	{
 		try {
-		MessageBoxW(this.handle, toUTF16z("Key Event Received!"), toUTF16z(Application.current.applicationName), MB_ICONERROR);
+			if(args.KeyCode == Key.A) MessageBoxW(this.handle, toUTF16z("Key Down Event Received for the A Key!"), toUTF16z(Application.current.applicationName), MB_ICONERROR);
 		} catch { }
 	}
 }

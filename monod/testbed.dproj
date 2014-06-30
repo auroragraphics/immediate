@@ -52,8 +52,8 @@
     <LinkinThirdPartyLibraries>false</LinkinThirdPartyLibraries>
     <Libs>
       <Libs>
-        <Lib>..\..\lib\libaurora_immediate64d.lib</Lib>
-        <Lib>..\..\lib\libaurora_directx64d.lib</Lib>
+        <Lib>..\..\lib\libaurora_immediate64.lib</Lib>
+        <Lib>..\..\lib\libaurora_directx64.lib</Lib>
         <Lib>kernel32.lib</Lib>
         <Lib>gdi32.lib</Lib>
         <Lib>user32.lib</Lib>

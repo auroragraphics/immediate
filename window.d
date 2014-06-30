@@ -2,6 +2,7 @@
 
 import aurora.immediate.application;
 import aurora.immediate.input;
+import aurora.immediate.types;
 import std.utf;
 import std.conv;
 import std.string;
@@ -37,12 +38,12 @@ version(Windows)
 
 	public class Window
 	{
-		private static Window[HWND] _windows;
+		private static Window[SystemWindow] _windows;
 
 		private static void addwindow(Window value) nothrow {
 			try { 
 				synchronized(windowlock) {
-					_windows[value._handle] = value;
+					_windows[SystemWindow(value._handle)] = value;
 				}
 			} catch { }
 		}
@@ -51,7 +52,7 @@ version(Windows)
 			try { 
 				bool nowindows = false;
 				synchronized(windowlock) {
-					_windows.remove(value._handle);
+					_windows.remove(SystemWindow(value._handle));
 					if(_windows.length == 0) nowindows = true;
 				}
 				if(nowindows && Application.current.shutdownMode == ShutdownMode.OnLastWindowClose) {
@@ -63,7 +64,12 @@ version(Windows)
 		private void* _handle;
 		@property public void* handle() nothrow { return _handle; }
 
-		this(string Title) {
+		protected this(string Title) {
+			_height = 400;
+			_width = 500;
+			_x = CW_USEDEFAULT;
+			_y = CW_USEDEFAULT;
+
 			WNDCLASSW wndclass;
 			wndclass.style         = CS_HREDRAW | CS_VREDRAW;
 			wndclass.lpfnWndProc   = &WndProc;
@@ -84,6 +90,8 @@ version(Windows)
 				MessageBoxW(null, toUTF16z("Unable to Create Window"), toUTF16z("Error"), MB_OK | MB_ICONEXCLAMATION);
 
 			addwindow(this);
+
+			Show();
 		}
 
 		~this() {
@@ -105,7 +113,7 @@ version(Windows)
 			ShowWindow(_handle, SW_RESTORE);
 		}
 
-		public void Show() {
+		public void Show() nothrow {
 			ShowWindow(_handle, SW_SHOW);
 			UpdateWindow(_handle);
 		}
@@ -142,16 +150,14 @@ version(Windows)
 			return _y = value; 
 		}
 
-		protected void delegate(immutable(KeyData) args) nothrow onKeyDown;
-		protected void delegate(immutable(KeyData) args) nothrow onKeyUp;
+		protected void delegate(immutable KeyData args) nothrow onKeyDown;
+		protected void delegate(immutable KeyData args) nothrow onKeyUp;
 
 		private LRESULT internalWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) nothrow
 		{
+			try {
 			switch (message)
 			{
-				case WM_CREATE:
-					return 0;
-
 				case WM_CLOSE:
 					DestroyWindow(hwnd);
 					return 0;
@@ -168,20 +174,21 @@ version(Windows)
 					removewindow(this);
 					return 0;
 
-				default:
+				default: return DefWindowProcW(hwnd, message, wParam, lParam);
 			}
+			} catch { }
 
 			return DefWindowProcW(hwnd, message, wParam, lParam);
 		}
 	}
 
 	extern(Windows) LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) nothrow {
-		if(message == WM_CREATE) return 0;
-		if(message == WM_GETMINMAXINFO) return 0;
-		if(message == WM_NCCREATE) return TRUE;
 		try {
+			if((SystemWindow(hwnd) in Window._windows) is null) {
+				return DefWindowProcW(hwnd, message, wParam, lParam);
+			}
 			synchronized(windowlock) {
-				return Window._windows[hwnd].internalWndProc(hwnd, message, wParam, lParam);
+				return Window._windows[SystemWindow(hwnd)].internalWndProc(hwnd, message, wParam, lParam);
 			}
 		}
 		catch { }
